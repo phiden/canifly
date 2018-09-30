@@ -16,7 +16,9 @@ $(document).ready(function() {
         headers: { 'X-API-Key': '0b91b390b1eb0a5688e077858c' },
         dataType: 'json',
         success: function (result) {
-           console.log(result)
+          var forecasts = result.data[0].forecast;
+          displayForecast(forecasts);
+          console.log(forecasts)
         },
         error: function (error) {
           console.log(error);
@@ -24,4 +26,11 @@ $(document).ready(function() {
       });
 
     }) // close on submit
+
+    function displayForecast(data) {
+
+      console.log(data);
+      $('#station-id').append(icao);
+      $('#search-result').append('data goes here');
+    }
 });
