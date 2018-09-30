@@ -1,13 +1,11 @@
 $(document).ready(function() {
-    // all custom jQuery will go here
 
-    console.log('hello world');
     var icao;
 
     $('.submit-station').click(function(e) {
 
       e.preventDefault();
-      console.log($('#input-station').val());
+      icao = ""; // clear out whatever was in there
       icao = $('#input-station').val();
 
       $.ajax({
@@ -22,6 +20,8 @@ $(document).ready(function() {
         },
         error: function (error) {
           console.log(error);
+
+          // write a function that explains the error
         }
       });
 
@@ -30,7 +30,28 @@ $(document).ready(function() {
     function displayForecast(data) {
 
       console.log(data);
-      $('#station-id').append(icao);
-      $('#search-result').append('data goes here');
+      $('#search-result h3').removeClass('hidden');
+      $('#station-id').replaceWith(icao);
+
+      data.forEach(displayData);
+
+    }
+
+    function displayData(taf) {
+
+      var clouds = taf.clouds[0].base_feet_agl;
+      var forecast_from = taf.timestamp.forecast_from;
+      var forecast_to = taf.timestamp.forecast_to;
+      var visibility_mi = taf.visibility.miles;
+      var wind_direction = taf.wind.degrees;
+      var windspeed = taf.wind.speed_kts;
+
+      var forecast =
+        "<div class='forecast'><p><b>Forecast valid from:</b>" + forecast_from + "<b> to: </b>" + forecast_to + "</p>" +
+        "<p><b>Clouds: </b>" + clouds + " feet AGL</p>" +
+        "<p><b>Visibility: </b>" + visibility_mi + " miles</p>" +
+        "<p><b>Winds: </b>" + wind_direction + " degrees at " + windspeed + " kts</p></div>";
+
+      $('#taf').append(forecast);
     }
 });
