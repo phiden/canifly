@@ -4,11 +4,16 @@ $(document).ready(function() {
     var isVFR = false;
     var tafs = [];
 
+    // console.log("Moment: ", moment().format("dddd, MMMM Do YYYY, h:mm:ss a"))
+    var currentTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a") + " ET";
+    $('#current-time').append(currentTime);
+
     $('.submit-station').click(function(e) {
 
-      e.preventDefault();
       icao = ""; // clear out whatever was in there
       icao = $('#input-station').val();
+
+      console.log('icao: ', icao);
 
       $.ajax({
         type: 'GET',
@@ -31,18 +36,17 @@ $(document).ready(function() {
 
     function displayForecast(data) {
 
-      // console.log(data);
+      console.log(icao);
       $('#search-result').removeClass('hidden');
-      $('#station-id').replaceWith(icao);
-
-      // console.log("Moment: ", moment().format("dddd, MMMM Do YYYY, h:mm:ss a"))
-      var currentTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a") + " ET";
-      $('#current-time').append(currentTime);
+      $('#station-id').replaceWith("<span id='station-id'>" + icao + "</span>");
       data.forEach(displayData);
 
     }
 
     function displayData(taf) {
+
+      // clean out tafs array
+      tafs = [];
 
       // ignore temporary TAF. Sloppy, sloppy
       if(taf.change_indicator != undefined && taf.change_indicator != "Temporary") {
@@ -79,10 +83,18 @@ $(document).ready(function() {
         // array contains vfr status, [0] is current time
         tafs.push(determineVFR(clouds_raw, visibility_mi));
         $('#taf').append(forecast);
-        $('#disclaimer').removeClass('hidden');
-        
-        if(tafs[0] || tafs[0] != undefined) {
-          $('#go-fly').replaceWith("<h1 id='go-fly'>Conditions are currently VFR at " + icao + ". Go fly.<a href='#disclaimer'>*</a></h1>")
+
+        // console.log("TAFs ", tafs[0])
+
+        if(tafs[0] && tafs[0] != undefined) {
+
+          $('#go-fly').replaceWith("<span id='go-fly' class='green'>Yes! Conditions are currently VFR at " + icao + ". Go fly.</span>");
+          $('#disclaimer').removeClass('hidden');
+
+        } else if (tafs[0] == false) {
+
+          $('#go-fly').replaceWith("<span id='go-fly' class='red'>Nope. Conditions are currently not VFR at " + icao +"</span>");
+          $('#disclaimer').addClass('hidden'); // just in case it's been removed previously
         }
       }
     }
@@ -93,7 +105,7 @@ $(document).ready(function() {
         vis = vis.split(" ")[2];
       }
 
-      // console.log(clouds, vis);
+      //console.log('determineVFR: ', clouds, vis);
       if(Number(clouds) > 3000 && Number(vis) > 3) {
         return true;
       } else {

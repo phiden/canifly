@@ -13,6 +13,10 @@ h1, h2, h3, h4 {
   margin: 0 auto;
 }
 
+.inline {
+  display: inline-block;
+}
+
 .bold {
   font-weight: 700;
 }
@@ -24,4 +28,12 @@ h1, h2, h3, h4 {
 a {
   color: red;
   height:auto;
+}
+
+.green {
+  color: green;
+}
+
+.red {
+  color: red;
 }
