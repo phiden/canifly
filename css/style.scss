@@ -1,0 +1,27 @@
+body {
+  width: 100%;
+  font-family: 'Oswald', sans-serif;
+}
+
+// reset
+h1, h2, h3, h4 {
+  font-weight: 300;
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.vfr {
+  background-color: green;
+}
+
+a {
+  color: red;
+  height:auto;
+}

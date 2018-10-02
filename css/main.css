@@ -1,3 +1,24 @@
+body {
+  width: 100%;
+  font-family: 'Oswald', sans-serif; }
+
+h1, h2, h3, h4 {
+  font-weight: 300; }
+
+.container {
+  width: 80%;
+  margin: 0 auto; }
+
+.bold {
+  font-weight: 700; }
+
+.vfr {
+  background-color: green; }
+
+a {
+  color: red;
+  height: auto; }
+
 /*! HTML5 Boilerplate v6.1.0 | MIT License | https://html5boilerplate.com/ */
 /*
  * What follows is the result of much research on cross-browser styling.
@@ -76,9 +97,6 @@ textarea {
   color: #000;
   padding: 0.2em 0; }
 
-/* ==========================================================================
-   Author's custom styles
-   ========================================================================== */
 /* ==========================================================================
    Helper classes
    ========================================================================== */

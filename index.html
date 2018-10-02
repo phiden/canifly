@@ -12,6 +12,7 @@
   <link rel="apple-touch-icon" href="icon.png">
   <!-- Place favicon.ico in the root directory -->
 
+  <link href="https://fonts.googleapis.com/css?family=Oswald:300,700" rel="stylesheet">
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/main.css">
 </head>
@@ -22,26 +23,34 @@
   <![endif]-->
 
   <header>
-      <h1>Can I fly?</h1>
-      <h2>A quick-and-dirty check to see if the weather's VFR</h3>
+    <div class="container">
+      <h1 class="bold">Can I fly?</h1>
+      <h1 id="go-fly"></h1>
+      <h2>A quick-and-dirty check to see if the weather's VFR</h2>
+    </div>
   </header>
 
   <main>
 
-    <div>
-      <h3>Where are you flying from?<h3>
-      <label class="station-input-label" for="input-station">First name</label>
+    <div class="container">
+      <h3 class="bold"><label class="station-input-label" for="input-station">Where are you flying from?</label><h3>
       <input class="station-input" id="input-station" name="station" type="text">
       <button class="submit-station">Submit</button>
     </div>
 
-    <div id="search-result">
-      <h3 class="hidden">You searched: <span id="station-id"></span></h3>
+    <div class="container hidden" id="disclaimer">
+      <p>Obviously, don't be an idiot. This isn't meant to replace an actual weather report or proper flight planning.
+      </p>
+    </div>
 
+    <div class="container hidden" id="search-result">
+
+      <h3><b>You searched: </b> <span id="station-id"></span></h3>
+
+      <h4>The current time is: <span id="current-time"></span></h4>
       <div id="taf"></div>
 
     </div>
-
   </main>
 
   <footer>
@@ -51,6 +60,8 @@
   <script src="js/vendor/modernizr-3.6.0.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
   <script>window.jQuery || document.write('<script src="js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+  <script src="js/vendor/moment.js"></script>
+  <script src="js/vendor/moment-timezone-with-data-2012-2022.js"></script>
   <script src="js/plugins.js"></script>
   <script src="js/main.js"></script>
 
