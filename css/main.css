@@ -28,6 +28,23 @@ a {
 .red {
   color: red; }
 
+.blue {
+  color: blue; }
+
+#disclaimer {
+  border: 1px solid red;
+  padding: 1em;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin-top: 0; }
+
+h1 {
+  margin-bottom: 0; }
+
+#what-is-this {
+  display: hidden; }
+
 /*! HTML5 Boilerplate v6.1.0 | MIT License | https://html5boilerplate.com/ */
 /*
  * What follows is the result of much research on cross-browser styling.

@@ -23,7 +23,7 @@ $(document).ready(function() {
         success: function (result) {
           var forecasts = result.data[0].forecast;
           displayForecast(forecasts);
-          // console.log(forecasts)
+           console.log(forecasts)
         },
         error: function (error) {
           console.log(error);
@@ -88,7 +88,7 @@ $(document).ready(function() {
 
         if(tafs[0] && tafs[0] != undefined) {
 
-          $('#go-fly').replaceWith("<span id='go-fly' class='green'>Yes! Conditions are currently VFR at " + icao + ". Go fly.</span>");
+          $('#go-fly').replaceWith("<span id='go-fly' class='blue'>Yes! Conditions are currently VFR at " + icao + ". Go fly.</span>");
           $('#disclaimer').removeClass('hidden');
 
         } else if (tafs[0] == false) {
@@ -101,6 +101,7 @@ $(document).ready(function() {
 
     function determineVFR(clouds, vis) {
       // min 3 mi visibility, ceiling > 3000 -- verify source
+      // add minimums -- ceiling, winds, cloud type (bkn ovc scattered/few), visibility, day/night
       if(vis.length > 1) {
         vis = vis.split(" ")[2];
       }
@@ -113,4 +114,12 @@ $(document).ready(function() {
       }
 
     }
-});
+
+    $('#what-is-this-toggle').click(function() {
+
+      $('#what-is-this').slideToggle("slow");
+
+    })
+
+
+}); // close file

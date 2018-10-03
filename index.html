@@ -25,21 +25,24 @@
   <header>
     <div class="container">
       <h1 class="bold inline">Can I fly? <span id="go-fly"></span></h1>
+      <p><span id="current-time"></span></p>
       <p class="hidden" id="disclaimer">Obviously, don't be an idiot. This isn't meant to replace an actual weather report or proper flight planning.</p>
-      <h2>A quick-and-dirty check to see if the weather's VFR</h2>
     </div>
   </header>
 
   <main>
 
     <div class="container">
-      <h4>The current time is: <span id="current-time"></span></h4>
       <h3 class="bold"><label class="station-input-label" for="input-station">Where are you flying from?</label><h3>
       <input class="station-input" id="input-station" name="station" type="text">
       <button class="submit-station">Submit</button>
     </div>
 
+    <div class="container">
 
+      <button id="what-is-this-toggle">What is this?</button>
+      <h2 id="what-is-this">A quick-and-dirty check to see if the weather's VFR</h2>
+    </div>
 
     <div class="container hidden" id="search-result">
 
