@@ -1,6 +1,7 @@
 $(document).ready(function() {
 
     var icao;
+    var globalICAO; // ugh why
     var isVFR = false;
     var tafs = [];
 
@@ -31,21 +32,30 @@ $(document).ready(function() {
 
     function showError(err) {
 
-      if(err == "no-icao") {
-        console.log('whoops no icao code. try again');
-      } else if (err == "empty-icao") {
-        console.log("your icao is empty go again");
-      } else if (err == "wrong-length") {
-        console.log("your icao is wrong; try again");
-      } else if (err == "show-error") {
-        console.log("this isn't a valid station");
-      } 
+      $('#error-container').removeClass('hidden');
+      switch(err) {
+        case "no-icao":
+          $('#error').text("Please give us a 4-character airport code.");
+          break;
+        case "empty-icao":
+          $('#error').text("Please give us a 4-character airport code.");
+          break;
+        case "wrong-length":
+          $('#error').text("Your code's either too long or too short. Try again!");
+          break;
+        case "show-error":
+          $('#error').text("Sorry, there's no data for that station. Try again!");
+          break;
+        default:
+          $('#error').textContent = "";
+          break;
+      }
     }
 
     // validate ICAO code
     function validateICAO(icao) {
 
-      console.log('validating: ', icao);
+      // console.log('validating: ', icao);
       // is empty?
       if(icao == "") {
         showError("empty-icao");
@@ -59,43 +69,37 @@ $(document).ready(function() {
       } else {
         retrieveData(icao);
       }
-
-      //
-
     }
 
     function retrieveData(icao) {
 
-      console.log('retrieve data for: ', icao);
+      // console.log('retrieve data for: ', icao);
       $.ajax({
         type: 'GET',
         url: 'https://api.checkwx.com/taf/' + icao + '/decoded',
         headers: { 'X-API-Key': '0b91b390b1eb0a5688e077858c' },
         dataType: 'json',
         success: function (result) {
-          console.log("RESULT: ", typeof(result.data[0]));
+          // make sure the returned data is what we need
           if(typeof(result.data[0]) == "object") {
+            $('#station-id').replaceWith("<span id='station-id'>" + icao + "</span>");
+            globalICAO = icao;
             displayForecast(result.data[0].forecast);
           } else {
             showError("show-error");
           }
         },
-
         error: function (error) {
           console.log(error);
-
-          // write a function that explains the error
         }
       });
     }
 
     function displayForecast(data) {
-
-      console.log(icao, data);
+      // console.log("display: ", icao, data);
+      $("#error-container").addClass('hidden');
       $('#search-result').removeClass('hidden');
-      $('#station-id').replaceWith("<span id='station-id'>" + icao + "</span>");
       data.forEach(displayData);
-
     }
 
     function displayData(taf) {
@@ -160,12 +164,12 @@ $(document).ready(function() {
 
         if(tafs[0] && tafs[0] != undefined) {
 
-          $('#go-fly').replaceWith("<span id='go-fly' class='blue'>Yes! Conditions are currently VFR at " + icao + ". Go fly.</span>");
+          $('#go-fly').replaceWith("<span id='go-fly' class='blue'>Yes! Conditions are currently VFR at " + globalICAO + ". Go fly.</span>");
           $('#disclaimer').removeClass('hidden');
 
         } else if (tafs[0] == false) {
 
-          $('#go-fly').replaceWith("<span id='go-fly' class='red'>Nope. Conditions are currently not VFR at " + icao +"</span>");
+          $('#go-fly').replaceWith("<span id='go-fly' class='red'>Nope. Conditions are currently not VFR at " + globalICAO +"</span>");
           $('#disclaimer').addClass('hidden'); // just in case it's been removed previously
         }
 
@@ -193,7 +197,6 @@ $(document).ready(function() {
       e.preventDefault();
       $('#what-is-this').slideToggle("slow");
     })
-
 
     function validate(data) {
       if(data != undefined) {
