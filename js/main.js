@@ -53,71 +53,86 @@ $(document).ready(function() {
       // clean out tafs array
       tafs = [];
 
-      var forecast = "";
-      var winds = "";
-      var clouds = "";
-      var sky = "";
-      var forecast_from = validateFast(taf.timestamp.forecast_from) ? taf.timestamp.forecast_from : null;
-      console.log(forecast_from);
-      var forecast_to = taf.timestamp.forecast_to;
-      var visibility_mi = taf.visibility.miles;
-      var ceiling;
+      // instead of icao, display name:
       var name;
 
-      //if the ceiling isn't BKN or OVC, don't worry about ceiling
+      // clear skies? default to true
+      var clearSky = true;
 
+      // check for change indicator in the data; if not present ignore report
+      if (validate(taf.change_indicator && taf.change_indicator != "Probable")) {
 
-      if(taf.clouds != undefined) {
-        var clouds_raw = taf.clouds[0].base_feet_agl;
-        var clouds = "<p><b>Clouds: </b>" + clouds_raw + " feet AGL</p>";
-        console.log(taf.clouds[0].text);
+        var forecast = "";
+        var winds = "";
+        var sky = "";
+
+        // validate from - to
+        var forecast_from = validate(taf.timestamp.forecast_from) ? taf.timestamp.forecast_from : null;
+        var forecast_to = validate(taf.timestamp.forecast_to) ? taf.timestamp.forecast_to : null;
+
+        // check that the data exist
+        var ceiling = validate(taf.clouds) ? taf.clouds[0].code : null;
+
+        //if the ceiling isn't BKN or OVC, check altitude
+        if(ceiling != null && ceiling == "BKN" || ceiling == "OVC") {
+
+          // 14 CFR 91.155 says that < 10k ft you need to be 500 ft
+          // below the clouds; setting the min at 3000 ft assuming that
+          // 2500 ft is a decent cruise altitude. verify w/P
+          if(taf.clouds[0].base_feet_agl < 3000) {
+            clearSky = false;
+          }
+        }
+
+        if(validate(taf.wind)) {
+          winds = "<p><b>Winds: </b>" + taf.wind.degrees+ " degrees at " + taf.wind.speed_kts + " kts</p></div><hr/>";
+        }
+
+        var visibility;
+        validate(taf.visibility) ? visibility = taf.visibility.miles : visibility = null;
+
+        if (determineVFR(visibility, clearSky)) {
+
+          forecast = "<div class='forecast vfr'><p><b>Forecast valid from: </b>" + forecast_from + "<b> to: </b>" + forecast_to + "</p>" + "clouds" +
+          "<p><b>Visibility: </b>" + visibility + " miles</p>" +
+          winds;
+
+        } else {
+          forecast = "<div class='forecast'><p><b>Forecast valid from: </b>" + forecast_from + "<b> to: </b>" + forecast_to + "</p>" + "clouds" +
+          "<p><b>Visibility: </b>" + visibility + " miles</p>" +
+          winds;
+
+        }
+
+        // array contains vfr status, [0] is current time
+        tafs.push(determineVFR(visibility, clearSky));
+        $('#taf').append(forecast);
+
+        if(tafs[0] && tafs[0] != undefined) {
+
+          $('#go-fly').replaceWith("<span id='go-fly' class='blue'>Yes! Conditions are currently VFR at " + icao + ". Go fly.</span>");
+          $('#disclaimer').removeClass('hidden');
+
+        } else if (tafs[0] == false) {
+
+          $('#go-fly').replaceWith("<span id='go-fly' class='red'>Nope. Conditions are currently not VFR at " + icao +"</span>");
+          $('#disclaimer').addClass('hidden'); // just in case it's been removed previously
+        }
+
       }
-
-      if(taf.wind != undefined) {
-        winds = "<p><b>Winds: </b>" + taf.wind.degrees+ " degrees at " + taf.wind.speed_kts + " kts</p></div><hr/>";
-      }
-
-      if (determineVFR(clouds_raw, visibility_mi)) {
-
-        forecast = "<div class='forecast vfr'><p><b>Forecast valid from: </b>" + forecast_from + "<b> to: </b>" + forecast_to + "</p>" + clouds +
-        "<p><b>Visibility: </b>" + visibility_mi + " miles</p>" +
-        winds;
-
-      } else {
-        forecast = "<div class='forecast'><p><b>Forecast valid from: </b>" + forecast_from + "<b> to: </b>" + forecast_to + "</p>" + clouds +
-        "<p><b>Visibility: </b>" + visibility_mi + " miles</p>" +
-        winds;
-
-      }
-
-      // array contains vfr status, [0] is current time
-      tafs.push(determineVFR(clouds_raw, visibility_mi));
-      $('#taf').append(forecast);
-
-      // console.log("TAFs ", tafs[0])
-
-      if(tafs[0] && tafs[0] != undefined) {
-
-        $('#go-fly').replaceWith("<span id='go-fly' class='blue'>Yes! Conditions are currently VFR at " + icao + ". Go fly.</span>");
-        $('#disclaimer').removeClass('hidden');
-
-      } else if (tafs[0] == false) {
-
-        $('#go-fly').replaceWith("<span id='go-fly' class='red'>Nope. Conditions are currently not VFR at " + icao +"</span>");
-        $('#disclaimer').addClass('hidden'); // just in case it's been removed previously
-      }
-
     }
 
-    function determineVFR(clouds, vis) {
-      // min 3 mi visibility, ceiling > 3000 -- verify source
+    function determineVFR(vis, clearSky) {
+      // min 3 mi visibility (should be 1 mile in G), ceiling > 3000 -- verify source
       // add minimums -- ceiling, winds, cloud type (bkn ovc scattered/few), visibility, day/night
-      if(vis.length > 1) {
+
+      //
+      if(vis != null && vis.length > 1) {
         vis = vis.split(" ")[2];
       }
 
       //console.log('determineVFR: ', clouds, vis);
-      if(Number(clouds) > 3000 && Number(vis) > 3) {
+      if(Number(vis) > 3 && clearSky) {
         return true;
       } else {
         return false;
@@ -132,7 +147,7 @@ $(document).ready(function() {
     })
 
 
-    function validateFast(data) {
+    function validate(data) {
       if(data != undefined) {
         return true;
       }
