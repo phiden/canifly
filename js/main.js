@@ -6,27 +6,30 @@ $(document).ready(function() {
 
     // console.log("Moment: ", moment().format("dddd, MMMM Do YYYY, h:mm:ss a"))
     var currentTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a") + " ET";
+
     $('#current-time').append(currentTime);
 
     $('.submit-station').click(function(e) {
 
       icao = ""; // clear out whatever was in there
+
+      // check for 'k' prefix
       icao = $('#input-station').val();
 
       console.log('icao: ', icao);
 
       $.ajax({
         type: 'GET',
-        url: 'https://api.checkwx.com/metar/' + icao + '/decoded',
+        url: 'https://api.checkwx.com/taf/' + icao + '/decoded',
         headers: { 'X-API-Key': '0b91b390b1eb0a5688e077858c' },
         dataType: 'json',
         success: function (result) {
 
-          console.log(result.data);
           var forecasts = result.data[0].forecast;
           displayForecast(forecasts);
-           console.log(forecasts)
+          console.log(forecasts)
         },
+
         error: function (error) {
           console.log(error);
 
@@ -38,7 +41,7 @@ $(document).ready(function() {
 
     function displayForecast(data) {
 
-      console.log(icao);
+      console.log(icao, data);
       $('#search-result').removeClass('hidden');
       $('#station-id').replaceWith("<span id='station-id'>" + icao + "</span>");
       data.forEach(displayData);
@@ -50,55 +53,60 @@ $(document).ready(function() {
       // clean out tafs array
       tafs = [];
 
-      // ignore temporary TAF. Sloppy, sloppy
-      if(taf.change_indicator != undefined && taf.change_indicator != "Temporary") {
+      var forecast = "";
+      var winds = "";
+      var clouds = "";
+      var sky = "";
+      var forecast_from = validateFast(taf.timestamp.forecast_from) ? taf.timestamp.forecast_from : null;
+      console.log(forecast_from);
+      var forecast_to = taf.timestamp.forecast_to;
+      var visibility_mi = taf.visibility.miles;
+      var ceiling;
+      var name;
 
-        var forecast = "";
-        var winds = "";
-        var clouds = "";
-        var forecast_from = taf.timestamp.forecast_from;
-        var forecast_to = taf.timestamp.forecast_to;
-        var visibility_mi = taf.visibility.miles;
+      //if the ceiling isn't BKN or OVC, don't worry about ceiling
 
-        if(taf.clouds != undefined) {
-          var clouds_raw = taf.clouds[0].base_feet_agl;
-          var clouds = "<p><b>Clouds: </b>" + clouds_raw + " feet AGL</p>";
-        }
 
-        if(taf.wind != undefined) {
-          winds = "<p><b>Winds: </b>" + taf.wind.degrees+ " degrees at " + taf.wind.speed_kts + " kts</p></div><hr/>";
-        }
-
-        if (determineVFR(clouds_raw, visibility_mi)) {
-
-          forecast = "<div class='forecast vfr'><p><b>Forecast valid from: </b>" + forecast_from + "<b> to: </b>" + forecast_to + "</p>" + clouds +
-          "<p><b>Visibility: </b>" + visibility_mi + " miles</p>" +
-          winds;
-
-        } else {
-          forecast = "<div class='forecast'><p><b>Forecast valid from: </b>" + forecast_from + "<b> to: </b>" + forecast_to + "</p>" + clouds +
-          "<p><b>Visibility: </b>" + visibility_mi + " miles</p>" +
-          winds;
-
-        }
-
-        // array contains vfr status, [0] is current time
-        tafs.push(determineVFR(clouds_raw, visibility_mi));
-        $('#taf').append(forecast);
-
-        // console.log("TAFs ", tafs[0])
-
-        if(tafs[0] && tafs[0] != undefined) {
-
-          $('#go-fly').replaceWith("<span id='go-fly' class='blue'>Yes! Conditions are currently VFR at " + icao + ". Go fly.</span>");
-          $('#disclaimer').removeClass('hidden');
-
-        } else if (tafs[0] == false) {
-
-          $('#go-fly').replaceWith("<span id='go-fly' class='red'>Nope. Conditions are currently not VFR at " + icao +"</span>");
-          $('#disclaimer').addClass('hidden'); // just in case it's been removed previously
-        }
+      if(taf.clouds != undefined) {
+        var clouds_raw = taf.clouds[0].base_feet_agl;
+        var clouds = "<p><b>Clouds: </b>" + clouds_raw + " feet AGL</p>";
+        console.log(taf.clouds[0].text);
       }
+
+      if(taf.wind != undefined) {
+        winds = "<p><b>Winds: </b>" + taf.wind.degrees+ " degrees at " + taf.wind.speed_kts + " kts</p></div><hr/>";
+      }
+
+      if (determineVFR(clouds_raw, visibility_mi)) {
+
+        forecast = "<div class='forecast vfr'><p><b>Forecast valid from: </b>" + forecast_from + "<b> to: </b>" + forecast_to + "</p>" + clouds +
+        "<p><b>Visibility: </b>" + visibility_mi + " miles</p>" +
+        winds;
+
+      } else {
+        forecast = "<div class='forecast'><p><b>Forecast valid from: </b>" + forecast_from + "<b> to: </b>" + forecast_to + "</p>" + clouds +
+        "<p><b>Visibility: </b>" + visibility_mi + " miles</p>" +
+        winds;
+
+      }
+
+      // array contains vfr status, [0] is current time
+      tafs.push(determineVFR(clouds_raw, visibility_mi));
+      $('#taf').append(forecast);
+
+      // console.log("TAFs ", tafs[0])
+
+      if(tafs[0] && tafs[0] != undefined) {
+
+        $('#go-fly').replaceWith("<span id='go-fly' class='blue'>Yes! Conditions are currently VFR at " + icao + ". Go fly.</span>");
+        $('#disclaimer').removeClass('hidden');
+
+      } else if (tafs[0] == false) {
+
+        $('#go-fly').replaceWith("<span id='go-fly' class='red'>Nope. Conditions are currently not VFR at " + icao +"</span>");
+        $('#disclaimer').addClass('hidden'); // just in case it's been removed previously
+      }
+
     }
 
     function determineVFR(clouds, vis) {
@@ -123,5 +131,11 @@ $(document).ready(function() {
 
     })
 
+
+    function validateFast(data) {
+      if(data != undefined) {
+        return true;
+      }
+    }
 
 }); // close file
