@@ -9,6 +9,19 @@ $(document).ready(function() {
 
     $('#current-time').append(currentTime);
 
+    // bind the enter key
+    var input = $('#input-station')[0];
+
+    input.addEventListener("keyup", function(event) {
+      event.preventDefault();
+      // Number 13 is the "Enter" key on the keyboard
+      if (event.keyCode === 13) {
+        // Trigger the button element with a click
+        $('.submit-station').click();
+      }
+    });
+
+    // the mama function
     $('.submit-station').click(function(e) {
 
       icao = ""; // clear out whatever was in there
