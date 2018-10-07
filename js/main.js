@@ -10,9 +10,7 @@ $(document).ready(function() {
     $('#current-time').append(currentTime);
 
     // bind the enter key
-    var input = $('#input-station')[0];
-
-    input.addEventListener("keyup", function(event) {
+    $('#input-station')[0].addEventListener("keyup", function(event) {
       event.preventDefault();
       // Number 13 is the "Enter" key on the keyboard
       if (event.keyCode === 13) {
@@ -25,22 +23,62 @@ $(document).ready(function() {
     $('.submit-station').click(function(e) {
 
       icao = ""; // clear out whatever was in there
-
       // check for 'k' prefix
       icao = $('#input-station').val();
+      icao = validate(icao) ? validateICAO(icao) : showError("no-icao");
 
-      console.log('icao: ', icao);
+    }) // close on submit
 
+    function showError(err) {
+
+      if(err == "no-icao") {
+        console.log('whoops no icao code. try again');
+      } else if (err == "empty-icao") {
+        console.log("your icao is empty go again");
+      } else if (err == "wrong-length") {
+        console.log("your icao is wrong; try again");
+      } else if (err == "show-error") {
+        console.log("this isn't a valid station");
+      } 
+    }
+
+    // validate ICAO code
+    function validateICAO(icao) {
+
+      console.log('validating: ', icao);
+      // is empty?
+      if(icao == "") {
+        showError("empty-icao");
+      // has 3 chars?
+      } else if(icao.length == 3) {
+        //assume the initial 'k' was dropped off and add it
+        icao = 'k' + icao;
+        retrieveData(icao);
+      } else if(icao.length > 4 || icao.length < 3) {
+        showError("wrong-length");
+      } else {
+        retrieveData(icao);
+      }
+
+      //
+
+    }
+
+    function retrieveData(icao) {
+
+      console.log('retrieve data for: ', icao);
       $.ajax({
         type: 'GET',
         url: 'https://api.checkwx.com/taf/' + icao + '/decoded',
         headers: { 'X-API-Key': '0b91b390b1eb0a5688e077858c' },
         dataType: 'json',
         success: function (result) {
-
-          var forecasts = result.data[0].forecast;
-          displayForecast(forecasts);
-          console.log(forecasts)
+          console.log("RESULT: ", typeof(result.data[0]));
+          if(typeof(result.data[0]) == "object") {
+            displayForecast(result.data[0].forecast);
+          } else {
+            showError("show-error");
+          }
         },
 
         error: function (error) {
@@ -49,8 +87,7 @@ $(document).ready(function() {
           // write a function that explains the error
         }
       });
-
-    }) // close on submit
+    }
 
     function displayForecast(data) {
 
