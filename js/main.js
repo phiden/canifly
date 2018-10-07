@@ -17,10 +17,12 @@ $(document).ready(function() {
 
       $.ajax({
         type: 'GET',
-        url: 'https://api.checkwx.com/taf/' + icao + '/decoded',
+        url: 'https://api.checkwx.com/metar/' + icao + '/decoded',
         headers: { 'X-API-Key': '0b91b390b1eb0a5688e077858c' },
         dataType: 'json',
         success: function (result) {
+
+          console.log(result.data);
           var forecasts = result.data[0].forecast;
           displayForecast(forecasts);
            console.log(forecasts)
