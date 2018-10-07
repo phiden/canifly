@@ -139,7 +139,6 @@ $(document).ready(function() {
       // min 3 mi visibility (should be 1 mile in G), ceiling > 3000 -- verify source
       // add minimums -- ceiling, winds, cloud type (bkn ovc scattered/few), visibility, day/night
 
-      //
       if(vis != null && vis.length > 1) {
         vis = vis.split(" ")[2];
       }
@@ -153,10 +152,9 @@ $(document).ready(function() {
 
     }
 
-    $('#what-is-this-toggle').click(function() {
-
+    $('#what-is-this-toggle').click(function(e) {
+      e.preventDefault();
       $('#what-is-this').slideToggle("slow");
-
     })
 
 
